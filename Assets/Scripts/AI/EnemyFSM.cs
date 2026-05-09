@@ -32,6 +32,13 @@ public class EnemyFSM : MonoBehaviour
     public float maxHealth = 100f;
     public float currentHealth;
 
+    [Header("Pathfinding")]
+    public AStarPathfinder pathfinder;
+    private List<Vector3> currentPath;
+    private int pathIndex;
+    public float pathUpdateInterval = 0.3f;
+    private float lastPathUpdate;
+
     private Vector3 patrolOrigin;
     private int patrolDirection = 1;
     private float lastAttackTime;
@@ -119,8 +126,29 @@ public class EnemyFSM : MonoBehaviour
 
     void DoChase()
     {
-        Vector3 dir = (player.position - transform.position).normalized;
-        transform.position += dir * chaseSpeed * Time.deltaTime;
+        if (pathfinder == null)
+        {
+            Vector3 dir = (player.position - transform.position).normalized;
+            transform.position += dir * chaseSpeed * Time.deltaTime;
+            return;
+        }
+
+        if (Time.time - lastPathUpdate > pathUpdateInterval)
+        {
+            currentPath = pathfinder.FindPath(transform.position, player.position);
+            pathIndex = 0;
+            lastPathUpdate = Time.time;
+        }
+
+        if (currentPath != null && pathIndex < currentPath.Count)
+        {
+            Vector3 target = currentPath[pathIndex];
+            transform.position = Vector3.MoveTowards(
+                transform.position, target, chaseSpeed * Time.deltaTime);
+
+            if (Vector3.Distance(transform.position, target) < 0.1f)
+                pathIndex++;
+        }
     }
 
     void DoAttack()
