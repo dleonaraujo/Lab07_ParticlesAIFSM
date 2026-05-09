@@ -848,6 +848,8 @@ MonoBehaviour:
   attackDamage: 10
   maxHealth: 100
   currentHealth: 0
+  pathfinder: {fileID: 1993951527}
+  pathUpdateInterval: 0.3
 --- !u!1 &865208072
 GameObject:
   m_ObjectHideFlags: 0
